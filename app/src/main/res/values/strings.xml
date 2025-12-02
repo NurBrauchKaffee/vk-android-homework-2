@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">APIShenanigans</string>
+    <string name="error_loading">Ошибка загрузки</string>
+    <string name="retry_button">Повторить</string>
+    <string name="notification_channel_name">Image Notifications</string>
+    <string name="notification_channel_desc">Уведомления о выборе изображения</string>
+    <string name="notification_title">Изображение выбрано</string>
+    <string name="notification_text">Вы нажали на картинку №%d</string>
+    <string name="content_desc_gif">Gif Image</string>
+</resources>
