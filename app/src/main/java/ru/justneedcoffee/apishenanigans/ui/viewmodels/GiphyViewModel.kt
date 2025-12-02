@@ -10,10 +10,11 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import ru.justneedcoffee.apishenanigans.BuildConfig
 import ru.justneedcoffee.apishenanigans.repository.GiphyPagingSource
 import javax.inject.Inject
 
-private const val API_KEY = "laznfzua2Cgb6PCYXpezMpmV5zTKLA7F"
+private const val API_KEY = BuildConfig.API_KEY
 
 @HiltViewModel
 class GiphyViewModel @Inject constructor(
