@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -16,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,6 +29,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.ImageLoader
+import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
@@ -55,7 +58,10 @@ fun getImageLoader(context: Context): ImageLoader {
 }
 
 @Composable
-fun GiphyScreen(viewModel: GiphyViewModel) {
+fun GiphyScreen(
+    viewModel: GiphyViewModel,
+    onNavigateToDetail: (String) -> Unit
+) {
     val lazyPagingItems = viewModel.gifs.collectAsLazyPagingItems()
     val context = LocalContext.current
 
@@ -71,7 +77,10 @@ fun GiphyScreen(viewModel: GiphyViewModel) {
         ) {
             GiphyList(
                 items = lazyPagingItems,
-                onItemClick = { index -> showNotification(context, index) }
+                onItemClick = { index, url ->
+                    showNotification(context, index)
+                    onNavigateToDetail(url)
+                }
             )
 
             lazyPagingItems.apply {
@@ -97,7 +106,7 @@ fun GiphyScreen(viewModel: GiphyViewModel) {
 @Composable
 fun GiphyList(
     items: LazyPagingItems<GiphyData>,
-    onItemClick: (Int) -> Unit
+    onItemClick: (Int, String) -> Unit
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
@@ -108,7 +117,13 @@ fun GiphyList(
     ) {
         items(count = items.itemCount) { index ->
             items[index]?.let { gif ->
-                GifItem(gif = gif, index = index, onClick = onItemClick)
+                GifItem(
+                    gif = gif,
+                    index = index,
+                    onClick = { clickedIndex ->
+                        onItemClick(clickedIndex, gif.images.fixedWidth.url)
+                    }
+                )
             }
         }
 
@@ -177,6 +192,32 @@ fun ErrorView(modifier: Modifier = Modifier, onRetry: () -> Unit) {
         Button(onClick = onRetry) {
             Text(text = stringResource(R.string.retry_button))
         }
+    }
+}
+
+@Composable
+fun DetailScreen(
+    url: String,
+    onBack: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .clickable { onBack() },
+        contentAlignment = Alignment.Center
+    ) {
+        SubcomposeAsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(url)
+                .crossfade(true)
+                .build(),
+            imageLoader = getImageLoader(LocalContext.current),
+            contentDescription = null,
+            loading = { CircularProgressIndicator(color = Color.White) },
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
